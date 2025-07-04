@@ -1,6 +1,15 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\Services",
+    "\\Views",
+    "\\Views\\Pokemon",
+    "\\Views\\Shared",
+    "\\wwwroot",
+    "\\wwwroot\\lib",
+    "\\wwwroot\\lib\\bootstrap",
+    "\\wwwroot\\lib\\bootstrap\\dist",
+    "\\wwwroot\\lib\\bootstrap\\dist\\css"
   ],
   "SelectedNode": "\\Program.cs",
   "PreviewInSolutionExplorer": false

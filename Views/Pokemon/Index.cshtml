@@ -1,0 +1,173 @@
+@model IEnumerable<PokeApp.Models.Pokemon>
+
+    @{
+    ViewData["Title"] = "Pokémon List";
+    }
+
+    <h1>Pokémon List</h1>
+
+    <form asp-action="Index" method="get">
+        <div class="form-group">
+            <label for="nameFilter">Filtrar por Nombre:</label>
+            <input type="text" name="nameFilter" class="form-control" value="@ViewBag.NameFilter" />
+        </div>
+        <div class="form-group">
+            <label for="speciesFilter">Filtrar por Especie:</label>
+            <select name="speciesFilter" class="form-control" asp-items="@ViewBag.PokemonTypes">
+                <option value="all">Todas</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <button type="button" class="btn btn-secondary" onclick="clearFilters()">Limpiar Filtros</button>
+    </form>
+
+    <hr />
+
+    <form asp-action="ExportToExcel" method="post">
+        <input type="hidden" name="nameFilter" value="@ViewBag.NameFilter" />
+        <input type="hidden" name="speciesFilter" value="@ViewBag.SpeciesFilter" />
+        <button type="submit" class="btn btn-success">Exportar a Excel</button>
+    </form>
+
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#sendEmailModal">Enviar Correo</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Nombre</th>
+                <th>Especie</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pokemon in Model)
+        {
+            <tr>
+                <td>
+                    @if (!string.IsNullOrEmpty(pokemon.Sprites?.FrontDefault))
+                    {
+                    <img src="@pokemon.Sprites.FrontDefault" alt="@pokemon.Name" width="50" height="50" />
+                    }
+                </td>
+                <td>@pokemon.Name</td>
+                <td>@string.Join(", ", pokemon.Types.Select(t => t.Type.Name))</td>
+                <td>
+                    <button type="button" class="btn btn-sm btn-info view-details" data-pokemon-name="@pokemon.Name">Detalles</button>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    @{
+    var prevDisabled = ViewBag.CurrentPage <= 1 ? "disabled" : "";
+    var nextDisabled = ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "";
+    }
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination">
+            <li class="page-item @prevDisabled">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)"
+                   asp-route-nameFilter="@ViewBag.NameFilter"
+                   asp-route-speciesFilter="@ViewBag.SpeciesFilter">Anterior</a>
+            </li>
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+        {
+            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@i"
+                   asp-route-nameFilter="@ViewBag.NameFilter"
+                   asp-route-speciesFilter="@ViewBag.SpeciesFilter">@i</a>
+            </li>
+        }
+            <li class="page-item @nextDisabled">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)"
+                   asp-route-nameFilter="@ViewBag.NameFilter"
+                   asp-route-speciesFilter="@ViewBag.SpeciesFilter">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="modal fade" id="sendEmailModal" tabindex="-1" role="dialog" aria-labelledby="sendEmailModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sendEmailModalLabel">Enviar Correo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form asp-action="SendEmail" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="emailAddress">Destinatario:</label>
+                            <input type="email" class="form-control" name="emailAddress" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="subject">Asunto:</label>
+                            <input type="text" class="form-control" name="subject" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="body">Cuerpo del Correo:</label>
+                            <textarea class="form-control" name="body" rows="5"></textarea>
+                        </div>
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="sendIndividual" name="sendIndividual" value="true">
+                            <label class="form-check-label" for="sendIndividual">Enviar correo individual (detalles del Pokémon seleccionado)</label>
+                        </div>
+                        <input type="hidden" name="nameFilter" value="@ViewBag.NameFilter" />
+                        <input type="hidden" name="speciesFilter" value="@ViewBag.SpeciesFilter" />
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Enviar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="pokemonDetailsModal" tabindex="-1" role="dialog" aria-labelledby="pokemonDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pokemonDetailsModalLabel">Detalles del Pokémon</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="pokemonDetailsBody">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        <script>
+        function clearFilters() {
+            window.location.href = '@Url.Action("Index", "Pokemon")';
+        }
+
+        $(document).ready(function () {
+            $('.view-details').on('click', function () {
+                var pokemonName = $(this).data('pokemon-name');
+                $.ajax({
+                    url: '@Url.Action("Details", "Pokemon")',
+                    type: 'GET',
+                    data: { name: pokemonName },
+                    success: function (data) {
+                        $('#pokemonDetailsBody').html(data);
+                        $('#pokemonDetailsModal').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error("Error loading pokemon details:", error);
+                        alert("Error al cargar los detalles del Pokémon.");
+                    }
+                });
+            });
+        });
+        </script>
+    }

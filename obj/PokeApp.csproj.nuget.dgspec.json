@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Abel\\Documents\\PokeApp\\PokeApp\\PokeApp.csproj": {}
+    "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\PokeApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Abel\\Documents\\PokeApp\\PokeApp\\PokeApp.csproj": {
+    "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\PokeApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Abel\\Documents\\PokeApp\\PokeApp\\PokeApp.csproj",
+        "projectUniqueName": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\PokeApp.csproj",
         "projectName": "PokeApp",
-        "projectPath": "C:\\Users\\Abel\\Documents\\PokeApp\\PokeApp\\PokeApp.csproj",
+        "projectPath": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\PokeApp.csproj",
         "packagesPath": "C:\\Users\\Abel\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Abel\\Documents\\PokeApp\\PokeApp\\obj\\",
+        "outputPath": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -49,6 +49,24 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.0, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.13.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.3, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

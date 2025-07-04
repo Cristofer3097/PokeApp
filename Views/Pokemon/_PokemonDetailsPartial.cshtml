@@ -1,0 +1,24 @@
+@model PokeApp.Models.Pokemon
+
+<div>
+    <h3>@Model.Name</h3>
+    @if (!string.IsNullOrEmpty(Model.Sprites?.FrontDefault)) // Usar '?'
+    {
+    <img src="@Model.Sprites.FrontDefault" alt="@Model.Name" class="img-fluid" />
+    }
+    <p><strong>ID:</strong> @Model.Id</p>
+    <p><strong>Especie:</strong> @string.Join(", ", Model.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>())</p>
+
+    @if (ViewBag.PokemonSpecies != null)
+    {
+    <p>
+        <strong>Descripción:</strong>
+        @{
+                var species = ViewBag.PokemonSpecies as PokeApp.Models.PokemonSpecies;
+                // Comprobaciones adicionales para FlavorTextEntries, FirstOrDefault, Language, y FlavorText
+                var description = species?.FlavorTextEntries?.FirstOrDefault(f => f.Language?.Name == "en")?.FlavorText;
+            @description
+        }
+    </p>
+    }
+</div>
