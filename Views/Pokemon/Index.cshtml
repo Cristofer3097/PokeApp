@@ -63,25 +63,64 @@
     @{
     var prevDisabled = ViewBag.CurrentPage <= 1 ? "disabled" : "";
     var nextDisabled = ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "";
+    var currentPage = (int)ViewBag.CurrentPage;
+    var totalPages = (int)ViewBag.TotalPages;
+    var maxPagesToShow = 10; // Cantidad máxima de números de página a mostrar
+    var startPage = Math.Max(1, currentPage - (maxPagesToShow / 2));
+    var endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
+
+    // Ajustar startPage si endPage alcanza totalPages pero maxPagesToShow no se cumple
+    if (endPage - startPage + 1 < maxPagesToShow)
+    {
+        startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+    }
     }
 
     <nav aria-label="Page navigation example">
         <ul class="pagination">
             <li class="page-item @prevDisabled">
-                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.CurrentPage - 1)"
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(currentPage - 1)"
                    asp-route-nameFilter="@ViewBag.NameFilter"
                    asp-route-speciesFilter="@ViewBag.SpeciesFilter">Anterior</a>
             </li>
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+
+            @if (startPage > 1)
         {
-            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="1"
+                   asp-route-nameFilter="@ViewBag.NameFilter"
+                   asp-route-speciesFilter="@ViewBag.SpeciesFilter">1</a>
+            </li>
+            @if (startPage > 2)
+            {
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+        }
+
+            @for (int i = startPage; i <= endPage; i++)
+        {
+            <li class="page-item @(i == currentPage ? "active" : "")">
                 <a class="page-link" asp-action="Index" asp-route-pageNumber="@i"
                    asp-route-nameFilter="@ViewBag.NameFilter"
                    asp-route-speciesFilter="@ViewBag.SpeciesFilter">@i</a>
             </li>
         }
+
+            @if (endPage < totalPages)
+        {
+            @if (endPage < totalPages - 1)
+            {
+            <li class="page-item disabled"><span class="page-link">...</span></li>
+            }
+            <li class="page-item">
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@totalPages"
+                   asp-route-nameFilter="@ViewBag.NameFilter"
+                   asp-route-speciesFilter="@ViewBag.SpeciesFilter">@totalPages</a>
+            </li>
+        }
+
             <li class="page-item @nextDisabled">
-                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(ViewBag.CurrentPage + 1)"
+                <a class="page-link" asp-action="Index" asp-route-pageNumber="@(currentPage + 1)"
                    asp-route-nameFilter="@ViewBag.NameFilter"
                    asp-route-speciesFilter="@ViewBag.SpeciesFilter">Siguiente</a>
             </li>

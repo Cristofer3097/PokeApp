@@ -11,6 +11,6 @@
     "\\wwwroot\\lib\\bootstrap\\dist",
     "\\wwwroot\\lib\\bootstrap\\dist\\css"
   ],
-  "SelectedNode": "\\Program.cs",
+  "SelectedNode": "\\Views\\Pokemon\\Index.cshtml",
   "PreviewInSolutionExplorer": false
 }

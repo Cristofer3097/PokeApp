@@ -42,7 +42,6 @@ C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\staticwebassets\msbuild.
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.PokeApp.props
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.PokeApp.props
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\staticwebassets.pack.json
-C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\PokeApp.csproj.Up2Date
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\PokeApp.dll
 C:\Users\Abel\Documents\Github\PokeApp\obj\Debug\net8.0\refint\PokeApp.dll
