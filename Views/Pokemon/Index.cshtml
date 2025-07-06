@@ -60,23 +60,20 @@
         </tbody>
     </table>
 
-    @* INICIO DE LA SECCIÓN DE PAGINACIÓN CORREGIDA *@
-    @{ // Asegúrate de que este bloque @{ ... } envuelva todo el código C# para la paginación.
+    @{ // Bloque de C# para la paginación.
     var prevDisabled = ViewBag.CurrentPage <= 1 ? "disabled" : "";
     var nextDisabled = ViewBag.CurrentPage >= ViewBag.TotalPages ? "disabled" : "";
     var currentPage = (int)ViewBag.CurrentPage;
     var totalPages = (int)ViewBag.TotalPages;
-    var maxPagesToShow = 10; // Cantidad máxima de números de página a mostrar
+    var maxPagesToShow = 10;
     var startPage = Math.Max(1, currentPage - (maxPagesToShow / 2));
     var endPage = Math.Min(totalPages, startPage + maxPagesToShow - 1);
 
-    // Ajustar startPage si endPage alcanza totalPages pero maxPagesToShow no se cumple
     if (endPage - startPage + 1 < maxPagesToShow)
     {
         startPage = Math.Max(1, endPage - maxPagesToShow + 1);
     }
     }
-    @* FIN DE LA SECCIÓN DE PAGINACIÓN CORREGIDA *@
 
     <nav aria-label="Page navigation example">
         <ul class="pagination">
@@ -200,8 +197,9 @@
                         $('#pokemonDetailsModal').modal('show');
                     },
                     error: function (xhr, status, error) {
-                        console.error("Error loading pokemon details:", error);
-                        alert("Error al cargar los detalles del Pokémon.");
+                        console.error("Error al cargar detalles del Pokémon:", status, error);
+                        console.error("Respuesta del servidor:", xhr.responseText);
+                        alert("Error al cargar los detalles del Pokémon. Inténtalo de nuevo más tarde.");
                     }
                 });
             });

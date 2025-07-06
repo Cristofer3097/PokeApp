@@ -10,7 +10,7 @@ using MimeKit;
 using MailKit.Net.Smtp;
 using PokeApp.Services;
 using PokeApp.Models;
-using System.IO; // Para MemoryStream
+using System.IO;
 
 namespace PokeApp.Controllers
 {
@@ -30,17 +30,21 @@ namespace PokeApp.Controllers
                 var pokemonsResponse = await _pokeApiService.GetPokemons(pageSize, (pageNumber - 1) * pageSize);
                 var pokemons = new List<Pokemon>();
 
-                if (pokemonsResponse?.Results != null) // Comprobar si Results no es nulo
+                if (pokemonsResponse?.Results != null)
                 {
                     foreach (var item in pokemonsResponse.Results)
                     {
-                        if (item?.Name != null) // Comprobar si Name no es nulo
+                        // *** IMPORTANTE: Solo intentar obtener detalles si el nombre es válido ***
+                        if (!string.IsNullOrEmpty(item?.Name))
                         {
                             var pokemonDetails = await _pokeApiService.GetPokemonDetails(item.Name);
+                            // Solo añadir a la lista si se obtuvieron los detalles correctamente
                             if (pokemonDetails != null)
                             {
                                 pokemons.Add(pokemonDetails);
                             }
+                            // Si pokemonDetails es null, este Pokémon se ignora en la lista principal.
+                            // Esto evitará errores al intentar acceder a propiedades nulas.
                         }
                     }
                 }
@@ -53,12 +57,11 @@ namespace PokeApp.Controllers
 
                 if (!string.IsNullOrEmpty(speciesFilter) && speciesFilter != "all")
                 {
-                    // Asegurarse de que Types no sea nulo antes de Any
                     pokemons = pokemons.Where(p => p.Types?.Any(t => t.Type?.Name != null && t.Type.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase)) == true).ToList();
                 }
 
                 // Paginación manual
-                var totalPokemons = pokemonsResponse?.Count ?? 0; // Usar el operador de fusión de nulos
+                var totalPokemons = pokemonsResponse?.Count ?? 0;
                 var totalPages = (int)Math.Ceiling((double)totalPokemons / pageSize);
 
                 ViewBag.CurrentPage = pageNumber;
@@ -86,14 +89,14 @@ namespace PokeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportToExcel(string? nameFilter, string? speciesFilter)
         {
-            var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0);
+            var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0); // Considera paginar esto también si hay muchos
             var pokemonsToExport = new List<Pokemon>();
 
             if (pokemonsResponse?.Results != null)
             {
                 foreach (var item in pokemonsResponse.Results)
                 {
-                    if (item?.Name != null)
+                    if (!string.IsNullOrEmpty(item?.Name)) // Mismo chequeo aquí para la exportación
                     {
                         var pokemonDetails = await _pokeApiService.GetPokemonDetails(item.Name);
                         if (pokemonDetails != null)
@@ -125,7 +128,6 @@ namespace PokeApp.Controllers
                 foreach (var pokemon in pokemonsToExport)
                 {
                     worksheet.Cell(row, 1).Value = pokemon.Name;
-                    // Usar el operador de navegación segura y fusión de nulos
                     worksheet.Cell(row, 2).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
                     row++;
                 }
@@ -145,7 +147,7 @@ namespace PokeApp.Controllers
             try
             {
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Pokemon App", "tu_correo@example.com")); // Reemplaza con tu correo
+                message.From.Add(new MailboxAddress("Pokemon App", "tu_correo@example.com"));
                 message.To.Add(new MailboxAddress("", emailAddress));
                 message.Subject = subject;
 
@@ -154,10 +156,6 @@ namespace PokeApp.Controllers
                 if (!sendIndividual)
                 {
                     // Lógica para adjuntar el Excel (similar a ExportToExcel)
-                    // Considera llamar a ExportToExcel aquí y adjuntar el resultado.
-                    // var pokemonsToExport = new List<Pokemon>();
-                    // ... (obtener datos filtrados) ...
-                    // builder.Attachments.Add("Pokemons.xlsx", excelStream);
                 }
 
                 message.Body = builder.ToMessageBody();
@@ -185,21 +183,30 @@ namespace PokeApp.Controllers
             try
             {
                 var pokemon = await _pokeApiService.GetPokemonDetails(name);
-                var species = await _pokeApiService.GetPokemonSpecies(name);
-
-                // Comprobar si pokemon y species no son nulos antes de pasarlos a la vista
                 if (pokemon == null)
                 {
-                    return NotFound($"No se encontró el Pokémon con nombre: {name}");
+                    // Devolver NotFound si el Pokémon no se encuentra por nombre/ID
+                    return NotFound($"No se encontró el Pokémon con nombre/ID: '{name}'. La API no devolvió datos para este Pokémon.");
                 }
 
-                ViewBag.PokemonSpecies = species; // species puede ser nulo, la vista ya lo maneja con '?'
+                var species = await _pokeApiService.GetPokemonSpecies(name);
+                // No es crítico que 'species' sea null si 'pokemon' no lo es,
+                // ya que la vista parcial maneja el caso de 'ViewBag.PokemonSpecies' nulo.
+                ViewBag.PokemonSpecies = species;
 
                 return PartialView("_PokemonDetailsPartial", pokemon);
             }
+            catch (HttpRequestException ex)
+            {
+                // Captura errores específicos de HTTP (ej. 404 Not Found de la API)
+                var statusCode = ex.StatusCode.HasValue ? $"Código de estado: {(int)ex.StatusCode.Value}. " : "";
+                return StatusCode((int)(ex.StatusCode ?? System.Net.HttpStatusCode.InternalServerError),
+                                  $"Error de la API al obtener detalles de '{name}': {statusCode}{ex.Message}");
+            }
             catch (Exception ex)
             {
-                return BadRequest($"Error al obtener detalles del Pokémon: {ex.Message}");
+                // Captura cualquier otro error general
+                return BadRequest($"Ocurrió un error al obtener detalles del Pokémon '{name}': {ex.Message}");
             }
         }
     }
