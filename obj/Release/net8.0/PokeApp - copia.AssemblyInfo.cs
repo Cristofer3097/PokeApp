@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PokeApp - copia")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+47d32fb3d1396f1ebd0b29182a22e500b4950244")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c50f95bf0c163cf31f63b5b4cf3da1c3bcfd649")]
 [assembly: System.Reflection.AssemblyProductAttribute("PokeApp - copia")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PokeApp - copia")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

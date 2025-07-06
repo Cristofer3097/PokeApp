@@ -59,7 +59,7 @@
               "RelativeDocumentMoniker": "appsettings.json",
               "ToolTip": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\appsettings.json",
               "RelativeToolTip": "appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAfAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2025-07-06T19:28:43.207Z",
               "EditorCaption": ""
@@ -98,8 +98,7 @@
               "RelativeToolTip": "Views\\Pokemon\\_PokemonDetailsPartial.cshtml",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAGAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-03T23:54:52.171Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-03T23:54:52.171Z"
             },
             {
               "$type": "Document",
@@ -111,8 +110,7 @@
               "RelativeToolTip": "Views\\Pokemon\\Index.cshtml",
               "ViewState": "AgIAAKcAAAAAAAAAAAAQwM8AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-07-03T23:54:31.302Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-03T23:54:31.302Z"
             },
             {
               "$type": "Document",
@@ -122,7 +120,7 @@
               "RelativeDocumentMoniker": "Controllers\\PokemonController.cs",
               "ToolTip": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Controllers\\PokemonController.cs",
               "RelativeToolTip": "Controllers\\PokemonController.cs",
-              "ViewState": "AgIAAPcAAAAAAAAAAAAiwBUBAABoAAAAAAAAAA==",
+              "ViewState": "AgIAAAkBAAAAAAAAAAAkwB4BAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-03T23:53:56.975Z",
               "EditorCaption": ""
@@ -137,8 +135,7 @@
               "RelativeToolTip": "Services\\PokeApiService.cs",
               "ViewState": "AgIAAFgAAAAAAAAAAAAiwH8AAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-03T23:53:25.494Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-03T23:53:25.494Z"
             },
             {
               "$type": "Document",
@@ -150,8 +147,7 @@
               "RelativeToolTip": "Models\\Pokemon.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAA9AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-03T23:51:53.647Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-03T23:51:53.647Z"
             },
             {
               "$type": "Document",
@@ -163,8 +159,7 @@
               "RelativeToolTip": "Program.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACIAAAAKAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-07-03T21:40:34.166Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-07-03T21:40:34.166Z"
             },
             {
               "$type": "Document",
