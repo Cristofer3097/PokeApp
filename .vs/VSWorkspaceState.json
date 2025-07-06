@@ -5,11 +5,7 @@
     "\\Views",
     "\\Views\\Pokemon",
     "\\Views\\Shared",
-    "\\wwwroot",
-    "\\wwwroot\\lib",
-    "\\wwwroot\\lib\\bootstrap",
-    "\\wwwroot\\lib\\bootstrap\\dist",
-    "\\wwwroot\\lib\\bootstrap\\dist\\css"
+    "\\wwwroot"
   ],
   "SelectedNode": "\\Views\\Pokemon\\Index.cshtml",
   "PreviewInSolutionExplorer": false

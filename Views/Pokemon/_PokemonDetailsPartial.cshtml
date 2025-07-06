@@ -2,7 +2,7 @@
 
 <div>
     <h3>@Model.Name</h3>
-    @if (!string.IsNullOrEmpty(Model.Sprites?.FrontDefault)) // Usar '?'
+    @if (!string.IsNullOrEmpty(Model.Sprites?.FrontDefault)) 
     {
     <img src="@Model.Sprites.FrontDefault" alt="@Model.Name" class="img-fluid" />
     }
@@ -16,8 +16,17 @@
         @{
                 var species = ViewBag.PokemonSpecies as PokeApp.Models.PokemonSpecies;
                 // Comprobaciones adicionales para FlavorTextEntries, FirstOrDefault, Language, y FlavorText
-                var description = species?.FlavorTextEntries?.FirstOrDefault(f => f.Language?.Name == "en")?.FlavorText;
-            @description
+                var description = species?.FlavorTextEntries?
+                                          .FirstOrDefault(f => f.Language?.Name == "en")?.FlavorText;
+
+                if (string.IsNullOrEmpty(description))
+                {
+                    // Si no se encuentra en inglés, intentar con cualquier otro idioma
+                    description = species?.FlavorTextEntries?
+                                          .FirstOrDefault()?.FlavorText;
+                }
+
+            @Html.Raw(description?.Replace("\n", "<br/>") ?? "Descripción no disponible.")
         }
     </p>
     }
