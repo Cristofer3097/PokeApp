@@ -11,16 +11,19 @@ using MailKit.Net.Smtp;
 using PokeApp.Services;
 using PokeApp.Models;
 using System.IO;
+using Microsoft.Extensions.Configuration; // Necesario para IConfiguration
 
 namespace PokeApp.Controllers
 {
     public class PokemonController : Controller
     {
         private readonly PokeApiService _pokeApiService;
+        private readonly IConfiguration _configuration; // Inyectar IConfiguration
 
-        public PokemonController(PokeApiService pokeApiService)
+        public PokemonController(PokeApiService pokeApiService, IConfiguration configuration)
         {
             _pokeApiService = pokeApiService;
+            _configuration = configuration; // Asignar IConfiguration
         }
 
         public async Task<IActionResult> Index(string? nameFilter, string? speciesFilter, int pageNumber = 1, int pageSize = 20)
@@ -34,7 +37,7 @@ namespace PokeApp.Controllers
                 {
                     foreach (var item in pokemonsResponse.Results)
                     {
-                        // *** IMPORTANTE: Solo intentar obtener detalles si el nombre es válido ***
+                        // Solo intentar obtener detalles si el nombre del Pokémon en la lista no es nulo o vacío
                         if (!string.IsNullOrEmpty(item?.Name))
                         {
                             var pokemonDetails = await _pokeApiService.GetPokemonDetails(item.Name);
@@ -43,8 +46,6 @@ namespace PokeApp.Controllers
                             {
                                 pokemons.Add(pokemonDetails);
                             }
-                            // Si pokemonDetails es null, este Pokémon se ignora en la lista principal.
-                            // Esto evitará errores al intentar acceder a propiedades nulas.
                         }
                     }
                 }
@@ -89,14 +90,14 @@ namespace PokeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportToExcel(string? nameFilter, string? speciesFilter)
         {
-            var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0); // Considera paginar esto también si hay muchos
+            var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0); // Obtener todos los Pokémon (o un número muy grande)
             var pokemonsToExport = new List<Pokemon>();
 
             if (pokemonsResponse?.Results != null)
             {
                 foreach (var item in pokemonsResponse.Results)
                 {
-                    if (!string.IsNullOrEmpty(item?.Name)) // Mismo chequeo aquí para la exportación
+                    if (!string.IsNullOrEmpty(item?.Name))
                     {
                         var pokemonDetails = await _pokeApiService.GetPokemonDetails(item.Name);
                         if (pokemonDetails != null)
@@ -107,7 +108,7 @@ namespace PokeApp.Controllers
                 }
             }
 
-            // Aplicar filtros para la exportación
+            // Aplicar filtros a la lista completa antes de exportar
             if (!string.IsNullOrEmpty(nameFilter))
             {
                 pokemonsToExport = pokemonsToExport.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
@@ -118,17 +119,20 @@ namespace PokeApp.Controllers
                 pokemonsToExport = pokemonsToExport.Where(p => p.Types?.Any(t => t.Type?.Name != null && t.Type.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase)) == true).ToList();
             }
 
+            // Crear el archivo Excel
             using (var workbook = new XLWorkbook())
             {
                 var worksheet = workbook.Worksheets.Add("Pokémon");
-                worksheet.Cell(1, 1).Value = "Nombre";
-                worksheet.Cell(1, 2).Value = "Especie";
+                worksheet.Cell(1, 1).Value = "ID";
+                worksheet.Cell(1, 2).Value = "Nombre";
+                worksheet.Cell(1, 3).Value = "Especie";
 
                 int row = 2;
                 foreach (var pokemon in pokemonsToExport)
                 {
-                    worksheet.Cell(row, 1).Value = pokemon.Name;
-                    worksheet.Cell(row, 2).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
+                    worksheet.Cell(row, 1).Value = pokemon.Id;
+                    worksheet.Cell(row, 2).Value = pokemon.Name;
+                    worksheet.Cell(row, 3).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
                     row++;
                 }
 
@@ -146,24 +150,99 @@ namespace PokeApp.Controllers
         {
             try
             {
+                var senderEmail = _configuration["SmtpSettings:SenderEmail"];
+                var senderPassword = _configuration["SmtpSettings:SenderPassword"];
+                var smtpHost = _configuration["SmtpSettings:SmtpHost"];
+                var smtpPort = int.Parse(_configuration["SmtpSettings:SmtpPort"]);
+
+                if (string.IsNullOrEmpty(senderEmail) || string.IsNullOrEmpty(senderPassword) || string.IsNullOrEmpty(smtpHost) || smtpPort == 0)
+                {
+                    TempData["ErrorMessage"] = "Error de configuración SMTP. Por favor, verifica appsettings.json.";
+                    return RedirectToAction("Index", new { nameFilter, speciesFilter });
+                }
+
                 var message = new MimeMessage();
-                message.From.Add(new MailboxAddress("Pokemon App", "tu_correo@example.com"));
+                message.From.Add(new MailboxAddress("Pokemon App", senderEmail));
                 message.To.Add(new MailboxAddress("", emailAddress));
                 message.Subject = subject;
 
-                var builder = new BodyBuilder { HtmlBody = body };
+                var builder = new BodyBuilder();
 
-                if (!sendIndividual)
+                if (sendIndividual)
+                {
+                    // Lógica para enviar detalles del Pokémon seleccionado
+                    // Esto requeriría saber qué Pokémon está actualmente en el modal de detalles
+                    // y pasarlo al controlador, lo cual no está implementado en la vista actual.
+                    // Para una implementación individual, necesitarías modificar el JS
+                    // que abre el modal de detalles para capturar el nombre del Pokémon y enviarlo aquí.
+                    // Por ahora, solo se enviará el cuerpo del correo general.
+                    builder.HtmlBody = body;
+                }
+                else
                 {
                     // Lógica para adjuntar el Excel (similar a ExportToExcel)
+                    var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0);
+                    var pokemonsToExport = new List<Pokemon>();
+
+                    if (pokemonsResponse?.Results != null)
+                    {
+                        foreach (var item in pokemonsResponse.Results)
+                        {
+                            if (!string.IsNullOrEmpty(item?.Name))
+                            {
+                                var pokemonDetails = await _pokeApiService.GetPokemonDetails(item.Name);
+                                if (pokemonDetails != null)
+                                {
+                                    pokemonsToExport.Add(pokemonDetails);
+                                }
+                            }
+                        }
+                    }
+
+                    // Aplicar filtros para la exportación
+                    if (!string.IsNullOrEmpty(nameFilter))
+                    {
+                        pokemonsToExport = pokemonsToExport.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+                    }
+
+                    if (!string.IsNullOrEmpty(speciesFilter) && speciesFilter != "all")
+                    {
+                        pokemonsToExport = pokemonsToExport.Where(p => p.Types?.Any(t => t.Type?.Name != null && t.Type.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase)) == true).ToList();
+                    }
+
+                    using (var workbook = new XLWorkbook())
+                    {
+                        var worksheet = workbook.Worksheets.Add("Pokémon");
+                        worksheet.Cell(1, 1).Value = "ID";
+                        worksheet.Cell(1, 2).Value = "Nombre";
+                        worksheet.Cell(1, 3).Value = "Especie";
+
+                        int row = 2;
+                        foreach (var pokemon in pokemonsToExport)
+                        {
+                            worksheet.Cell(row, 1).Value = pokemon.Id;
+                            worksheet.Cell(row, 2).Value = pokemon.Name;
+                            worksheet.Cell(row, 3).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
+                            row++;
+                        }
+
+                        using (var stream = new MemoryStream())
+                        {
+                            workbook.SaveAs(stream);
+                            stream.Position = 0; // Reiniciar la posición del stream
+                            builder.Attachments.Add("Pokemons.xlsx", stream);
+                        }
+                    }
+                    builder.HtmlBody = body; // Añadir también el cuerpo del correo
                 }
 
                 message.Body = builder.ToMessageBody();
 
                 using (var client = new SmtpClient())
                 {
-                    await client.ConnectAsync("smtp.example.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
-                    await client.AuthenticateAsync("tu_correo@example.com", "tu_contraseña");
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true; // Solo para desarrollo, no usar en producción
+                    await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+                    await client.AuthenticateAsync(senderEmail, senderPassword);
                     await client.SendAsync(message);
                     await client.DisconnectAsync(true);
                 }
@@ -185,27 +264,22 @@ namespace PokeApp.Controllers
                 var pokemon = await _pokeApiService.GetPokemonDetails(name);
                 if (pokemon == null)
                 {
-                    // Devolver NotFound si el Pokémon no se encuentra por nombre/ID
                     return NotFound($"No se encontró el Pokémon con nombre/ID: '{name}'. La API no devolvió datos para este Pokémon.");
                 }
 
                 var species = await _pokeApiService.GetPokemonSpecies(name);
-                // No es crítico que 'species' sea null si 'pokemon' no lo es,
-                // ya que la vista parcial maneja el caso de 'ViewBag.PokemonSpecies' nulo.
                 ViewBag.PokemonSpecies = species;
 
                 return PartialView("_PokemonDetailsPartial", pokemon);
             }
             catch (HttpRequestException ex)
             {
-                // Captura errores específicos de HTTP (ej. 404 Not Found de la API)
                 var statusCode = ex.StatusCode.HasValue ? $"Código de estado: {(int)ex.StatusCode.Value}. " : "";
                 return StatusCode((int)(ex.StatusCode ?? System.Net.HttpStatusCode.InternalServerError),
                                   $"Error de la API al obtener detalles de '{name}': {statusCode}{ex.Message}");
             }
             catch (Exception ex)
             {
-                // Captura cualquier otro error general
                 return BadRequest($"Ocurrió un error al obtener detalles del Pokémon '{name}': {ex.Message}");
             }
         }

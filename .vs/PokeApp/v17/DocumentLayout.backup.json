@@ -11,6 +11,9 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Controllers\\PokemonController.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Views\\Shared\\_Layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:Views\\Shared\\_Layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
@@ -42,11 +45,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 2,
+              "Title": "Microsoft.Common.CurrentVersion.targets",
+              "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
+              "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\2022\\Professional\\MSBuild\\Current\\Bin\\amd64\\Microsoft.Common.CurrentVersion.targets",
+              "ViewState": "AgIAALEUAAAAAAAAAAAjwPMUAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003801|",
+              "WhenOpened": "2025-07-06T19:07:21.006Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "_Layout.cshtml",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Views\\Shared\\_Layout.cshtml",
               "RelativeDocumentMoniker": "Views\\Shared\\_Layout.cshtml",
@@ -58,7 +74,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "_PokemonDetailsPartial.cshtml",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Views\\Pokemon\\_PokemonDetailsPartial.cshtml",
               "RelativeDocumentMoniker": "Views\\Pokemon\\_PokemonDetailsPartial.cshtml",
@@ -76,7 +92,7 @@
               "RelativeDocumentMoniker": "Views\\Pokemon\\Index.cshtml",
               "ToolTip": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Views\\Pokemon\\Index.cshtml",
               "RelativeToolTip": "Views\\Pokemon\\Index.cshtml",
-              "ViewState": "AgIAAFoAAAAAAAAAAAAAwG4AAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAEIAAAAAAAAAAAAAwFwAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
               "WhenOpened": "2025-07-03T23:54:31.302Z",
               "EditorCaption": ""
@@ -89,14 +105,14 @@
               "RelativeDocumentMoniker": "Controllers\\PokemonController.cs",
               "ToolTip": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Controllers\\PokemonController.cs",
               "RelativeToolTip": "Controllers\\PokemonController.cs",
-              "ViewState": "AgIAAE8AAAAAAAAAAAAiwF0AAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAK0AAAAAAAAAAAAiwNQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-07-03T23:53:56.975Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "PokeApiService.cs",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Services\\PokeApiService.cs",
               "RelativeDocumentMoniker": "Services\\PokeApiService.cs",
@@ -108,7 +124,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "Pokemon.cs",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Models\\Pokemon.cs",
               "RelativeDocumentMoniker": "Models\\Pokemon.cs",
@@ -120,7 +136,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -132,7 +148,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "PokeApp.csproj",
               "DocumentMoniker": "C:\\Users\\Abel\\Documents\\Github\\PokeApp\\PokeApp.csproj",
               "RelativeDocumentMoniker": "PokeApp.csproj",

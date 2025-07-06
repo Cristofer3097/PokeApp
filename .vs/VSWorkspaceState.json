@@ -2,12 +2,13 @@
   "ExpandedNodes": [
     "",
     "\\Controllers",
+    "\\Models",
     "\\Services",
     "\\Views",
     "\\Views\\Pokemon",
     "\\Views\\Shared",
     "\\wwwroot"
   ],
-  "SelectedNode": "\\Views\\Pokemon\\Index.cshtml",
+  "SelectedNode": "\\appsettings.json",
   "PreviewInSolutionExplorer": false
 }
