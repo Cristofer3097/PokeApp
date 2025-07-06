@@ -145,8 +145,42 @@ namespace PokeApp.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> Details(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return BadRequest("El nombre del Pokémon es requerido.");
+            }
+
+            try
+            {
+                // 1. Obtener los detalles principales del Pokémon
+                var pokemonDetails = await _pokeApiService.GetPokemonDetails(name);
+                if (pokemonDetails == null)
+                {
+                    return NotFound($"No se encontraron detalles para el Pokémon: {name}");
+                }
+
+                // 2. Obtener los detalles de la especie para la descripción
+                var pokemonSpecies = await _pokeApiService.GetPokemonSpecies(name);
+                ViewBag.PokemonSpecies = pokemonSpecies;
+
+                // 3. Devolver la vista parcial con los datos para mostrar en el modal
+                return PartialView("_PokemonDetailsPartial", pokemonDetails);
+            }
+            catch (Exception ex)
+            {
+                // En caso de un error inesperado, devolver una respuesta de error al AJAX.
+                return StatusCode(500, $"Error interno al procesar la solicitud: {ex.Message}");
+            }
+        }
+
         [HttpPost]
-        public async Task<IActionResult> SendEmail(string emailAddress, string subject, string body, string? nameFilter, string? speciesFilter, bool sendIndividual)
+        public async Task<IActionResult> SendEmail(
+    string emailAddress, string subject, string body,
+    string? nameFilter, string? speciesFilter,
+    string? pokemonName, int pokemonId, string? pokemonTypes, string? pokemonImage)
         {
             try
             {
@@ -168,24 +202,30 @@ namespace PokeApp.Controllers
 
                 var builder = new BodyBuilder();
 
-                if (sendIndividual)
+                // --- LÓGICA ACTUALIZADA ---
+                // Si se proporciona un pokemonName, es un correo individual con sus detalles.
+                if (!string.IsNullOrEmpty(pokemonName))
                 {
-                    // Lógica para enviar detalles del Pokémon seleccionado
-                    // Esto requeriría saber qué Pokémon está actualmente en el modal de detalles
-                    // y pasarlo al controlador, lo cual no está implementado en la vista actual.
-                    // Para una implementación individual, necesitarías modificar el JS
-                    // que abre el modal de detalles para capturar el nombre del Pokémon y enviarlo aquí.
-                    // Por ahora, solo se enviará el cuerpo del correo general.
-                    builder.HtmlBody = body;
+                    // Construir un cuerpo de correo en HTML con los detalles del Pokémon.
+                    builder.HtmlBody = $@"
+                <h1>Detalles de {pokemonName}</h1>
+                <img src='{pokemonImage}' alt='Imagen de {pokemonName}' width='150' />
+                <p><strong>ID:</strong> {pokemonId}</p>
+                <p><strong>Especie(s):</strong> {pokemonTypes}</p>
+                <hr>
+                <p>{body}</p>"; // Añade el mensaje personalizado del usuario.
                 }
-                else
+                else // Si no, es un correo con la lista completa (comportamiento anterior).
                 {
+                    builder.HtmlBody = body; // Cuerpo del correo general.
+
                     // Lógica para adjuntar el Excel (similar a ExportToExcel)
-                    var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0);
+                    var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0); // O un límite razonable
                     var pokemonsToExport = new List<Pokemon>();
 
                     if (pokemonsResponse?.Results != null)
                     {
+                        // Este bucle puede ser lento. Para producción, considera una estrategia de carga en segundo plano.
                         foreach (var item in pokemonsResponse.Results)
                         {
                             if (!string.IsNullOrEmpty(item?.Name))
@@ -204,7 +244,6 @@ namespace PokeApp.Controllers
                     {
                         pokemonsToExport = pokemonsToExport.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
                     }
-
                     if (!string.IsNullOrEmpty(speciesFilter) && speciesFilter != "all")
                     {
                         pokemonsToExport = pokemonsToExport.Where(p => p.Types?.Any(t => t.Type?.Name != null && t.Type.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase)) == true).ToList();
@@ -229,18 +268,17 @@ namespace PokeApp.Controllers
                         using (var stream = new MemoryStream())
                         {
                             workbook.SaveAs(stream);
-                            stream.Position = 0; // Reiniciar la posición del stream
-                            builder.Attachments.Add("Pokemons.xlsx", stream);
+                            stream.Position = 0;
+                            builder.Attachments.Add("Pokemons.xlsx", stream.ToArray(), ContentType.Parse("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
                         }
                     }
-                    builder.HtmlBody = body; // Añadir también el cuerpo del correo
                 }
 
                 message.Body = builder.ToMessageBody();
 
                 using (var client = new SmtpClient())
                 {
-                    client.ServerCertificateValidationCallback = (s, c, h, e) => true; // Solo para desarrollo, no usar en producción
+                    client.ServerCertificateValidationCallback = (s, c, h, e) => true; // Solo para desarrollo.
                     await client.ConnectAsync(smtpHost, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(senderEmail, senderPassword);
                     await client.SendAsync(message);
@@ -254,33 +292,6 @@ namespace PokeApp.Controllers
             {
                 TempData["ErrorMessage"] = $"Error al enviar el correo: {ex.Message}";
                 return RedirectToAction("Index", new { nameFilter, speciesFilter });
-            }
-        }
-
-        public async Task<IActionResult> Details(string name)
-        {
-            try
-            {
-                var pokemon = await _pokeApiService.GetPokemonDetails(name);
-                if (pokemon == null)
-                {
-                    return NotFound($"No se encontró el Pokémon con nombre/ID: '{name}'. La API no devolvió datos para este Pokémon.");
-                }
-
-                var species = await _pokeApiService.GetPokemonSpecies(name);
-                ViewBag.PokemonSpecies = species;
-
-                return PartialView("_PokemonDetailsPartial", pokemon);
-            }
-            catch (HttpRequestException ex)
-            {
-                var statusCode = ex.StatusCode.HasValue ? $"Código de estado: {(int)ex.StatusCode.Value}. " : "";
-                return StatusCode((int)(ex.StatusCode ?? System.Net.HttpStatusCode.InternalServerError),
-                                  $"Error de la API al obtener detalles de '{name}': {statusCode}{ex.Message}");
-            }
-            catch (Exception ex)
-            {
-                return BadRequest($"Ocurrió un error al obtener detalles del Pokémon '{name}': {ex.Message}");
             }
         }
     }

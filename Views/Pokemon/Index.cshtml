@@ -147,10 +147,12 @@
                             <label for="body">Cuerpo del Correo:</label>
                             <textarea class="form-control" name="body" rows="5"></textarea>
                         </div>
-                        <div class="form-check">
-                            <input type="checkbox" class="form-check-input" id="sendIndividual" name="sendIndividual" value="true">
-                            <label class="form-check-label" for="sendIndividual">Enviar correo individual (detalles del Pokémon seleccionado)</label>
-                        </div>
+                       
+                        <input type="hidden" name="pokemonName" id="emailPokemonName" />
+                        <input type="hidden" name="pokemonId" id="emailPokemonId" />
+                        <input type="hidden" name="pokemonTypes" id="emailPokemonTypes" />
+                        <input type="hidden" name="pokemonImage" id="emailPokemonImage" />
+
                         <input type="hidden" name="nameFilter" value="@ViewBag.NameFilter" />
                         <input type="hidden" name="speciesFilter" value="@ViewBag.SpeciesFilter" />
                     </div>
@@ -186,6 +188,7 @@
         }
 
         $(document).ready(function () {
+            // ... (el código existente para 'view-details' se mantiene igual) ...
             $('.view-details').on('click', function () {
                 var pokemonName = $(this).data('pokemon-name');
                 $.ajax({
@@ -198,10 +201,46 @@
                     },
                     error: function (xhr, status, error) {
                         console.error("Error al cargar detalles del Pokémon:", status, error);
-                        console.error("Respuesta del servidor:", xhr.responseText);
-                        alert("Error al cargar los detalles del Pokémon. Inténtalo de nuevo más tarde.");
+                        alert("Error al cargar los detalles del Pokémon.");
                     }
                 });
+            });
+
+            // --- NUEVO SCRIPT PARA MANEJAR EL ENVÍO DE DETALLES POR CORREO ---
+            $(document).on('click', '#sendDetailsByEmailBtn', function () {
+                var pokemonName = $(this).data('pokemon-name');
+                var pokemonId = $(this).data('pokemon-id');
+                var pokemonTypes = $(this).data('pokemon-types');
+                var pokemonImage = $(this).data('pokemon-image');
+
+                // 1. Poblar los campos ocultos en el formulario de correo
+                $('#emailPokemonName').val(pokemonName);
+                $('#emailPokemonId').val(pokemonId);
+                $('#emailPokemonTypes').val(pokemonTypes);
+                $('#emailPokemonImage').val(pokemonImage);
+
+                // 2. Personalizar el título y el asunto del modal de correo
+                $('#sendEmailModalLabel').text('Enviar Detalles de ' + pokemonName);
+                $('#emailSubject').val('Detalles del Pokémon: ' + pokemonName);
+
+                // 3. Cerrar el modal de detalles y abrir el de correo
+                $('#pokemonDetailsModal').modal('hide');
+                $('#sendEmailModal').modal('show');
+            });
+
+            // --- NUEVO SCRIPT PARA LIMPIAR EL MODAL DE CORREO AL CERRAR ---
+            $('#sendEmailModal').on('hidden.bs.modal', function () {
+                // Restablecer el formulario
+                $(this).find('form')[0].reset();
+
+                // Limpiar los campos ocultos
+                $('#emailPokemonName').val('');
+                $('#emailPokemonId').val('');
+                $('#emailPokemonTypes').val('');
+                $('#emailPokemonImage').val('');
+
+                // Restablecer el título original del modal
+                $('#sendEmailModalLabel').text('Enviar Correo');
             });
         });
         </script>

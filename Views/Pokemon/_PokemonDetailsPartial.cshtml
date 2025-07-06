@@ -14,18 +14,32 @@
     <p>
         <strong>Descripción:</strong>
         @{
-                var species = ViewBag.PokemonSpecies as PokeApp.Models.PokemonSpecies;
-                var description = species?.FlavorTextEntries?
-                                          .FirstOrDefault(f => f.Language?.Name == "en")?.FlavorText;
+            var species = ViewBag.PokemonSpecies as PokeApp.Models.PokemonSpecies;
+            var description = species?.FlavorTextEntries?
+                                      .FirstOrDefault(f => f.Language?.Name == "es")?.FlavorText; // Buscar descripción en español
 
-                if (string.IsNullOrEmpty(description))
-                {
-                    description = species?.FlavorTextEntries?
-                                          .FirstOrDefault()?.FlavorText;
-                }
+            if (string.IsNullOrEmpty(description))
+            {
+                description = species?.FlavorTextEntries?.FirstOrDefault(f => f.Language?.Name == "en")?.FlavorText;
+            }
+
+            if (string.IsNullOrEmpty(description))
+            {
+                description = species?.FlavorTextEntries?.FirstOrDefault()?.FlavorText;
+            }
 
             @Html.Raw(description?.Replace("\n", "<br/>") ?? "Descripción no disponible.")
         }
     </p>
     }
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn btn-primary" id="sendDetailsByEmailBtn"
+            data-pokemon-name="@Model.Name"
+            data-pokemon-id="@Model.Id"
+            data-pokemon-types="@string.Join(", ", Model.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>())"
+            data-pokemon-image="@Model.Sprites?.FrontDefault">
+        Enviar a Correo
+    </button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
 </div>

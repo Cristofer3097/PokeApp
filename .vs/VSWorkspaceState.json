@@ -9,6 +9,6 @@
     "\\Views\\Shared",
     "\\wwwroot"
   ],
-  "SelectedNode": "\\appsettings.json",
+  "SelectedNode": "\\Views\\Pokemon\\Index.cshtml",
   "PreviewInSolutionExplorer": false
 }
