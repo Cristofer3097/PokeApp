@@ -23,11 +23,15 @@
 
     <hr />
 
-    <form asp-action="ExportToExcel" method="post">
-        <input type="hidden" name="nameFilter" value="@ViewBag.NameFilter" />
-        <input type="hidden" name="speciesFilter" value="@ViewBag.SpeciesFilter" />
-        <button type="submit" class="btn btn-success">Exportar a Excel</button>
-    </form>
+    <div class="d-flex gap-2 mb-3">
+        <form asp-action="ExportToExcel" method="post">
+            <input type="hidden" name="nameFilter" value="@ViewBag.NameFilter" />
+            <input type="hidden" name="speciesFilter" value="@ViewBag.SpeciesFilter" />
+            <button type="submit" class="btn btn-success">Exportar a Excel</button>
+        </form>
+
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#sendEmailModal">Enviar Correo</button>
+    </div>
 
     <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#sendEmailModal">Enviar Correo</button>
 

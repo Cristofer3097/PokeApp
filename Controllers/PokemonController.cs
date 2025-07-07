@@ -90,12 +90,21 @@ namespace PokeApp.Controllers
         [HttpPost]
         public async Task<IActionResult> ExportToExcel(string? nameFilter, string? speciesFilter)
         {
-            var pokemonsResponse = await _pokeApiService.GetPokemons(100000, 0); // Obtener todos los Pokémon (o un número muy grande)
-            var pokemonsToExport = new List<Pokemon>();
-
-            if (pokemonsResponse?.Results != null)
+            try
             {
-                foreach (var item in pokemonsResponse.Results)
+                // 1. Obtener la lista de todos los nombres de Pokémon (esto es rápido, solo una llamada a la API)
+                var pokemonsResponse = await _pokeApiService.GetPokemons(2000, 0); // Un límite alto para traer a todos
+                var pokemonList = pokemonsResponse?.Results ?? new List<PokemonListItem>();
+
+                // 2. Aplicar el filtro por nombre ANTES de buscar los detalles
+                if (!string.IsNullOrEmpty(nameFilter))
+                {
+                    pokemonList = pokemonList.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
+                }
+
+                var pokemonsToExport = new List<Pokemon>();
+                // 3. Obtener los detalles solo para la lista ya pre-filtrada
+                foreach (var item in pokemonList)
                 {
                     if (!string.IsNullOrEmpty(item?.Name))
                     {
@@ -106,42 +115,43 @@ namespace PokeApp.Controllers
                         }
                     }
                 }
-            }
 
-            // Aplicar filtros a la lista completa antes de exportar
-            if (!string.IsNullOrEmpty(nameFilter))
-            {
-                pokemonsToExport = pokemonsToExport.Where(p => p.Name.Contains(nameFilter, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(speciesFilter) && speciesFilter != "all")
-            {
-                pokemonsToExport = pokemonsToExport.Where(p => p.Types?.Any(t => t.Type?.Name != null && t.Type.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase)) == true).ToList();
-            }
-
-            // Crear el archivo Excel
-            using (var workbook = new XLWorkbook())
-            {
-                var worksheet = workbook.Worksheets.Add("Pokémon");
-                worksheet.Cell(1, 1).Value = "ID";
-                worksheet.Cell(1, 2).Value = "Nombre";
-                worksheet.Cell(1, 3).Value = "Especie";
-
-                int row = 2;
-                foreach (var pokemon in pokemonsToExport)
+                // 4. Aplicar el filtro por especie (tipo) sobre la lista detallada
+                if (!string.IsNullOrEmpty(speciesFilter) && speciesFilter != "all")
                 {
-                    worksheet.Cell(row, 1).Value = pokemon.Id;
-                    worksheet.Cell(row, 2).Value = pokemon.Name;
-                    worksheet.Cell(row, 3).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
-                    row++;
+                    pokemonsToExport = pokemonsToExport.Where(p => p.Types?.Any(t => t.Type?.Name.Equals(speciesFilter, StringComparison.OrdinalIgnoreCase) == true) == true).ToList();
                 }
 
-                using (var stream = new MemoryStream())
+                // 5. Crear el archivo Excel (esta parte es igual)
+                using (var workbook = new XLWorkbook())
                 {
-                    workbook.SaveAs(stream);
-                    var content = stream.ToArray();
-                    return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Pokemons.xlsx");
+                    var worksheet = workbook.Worksheets.Add("Pokémon");
+                    worksheet.Cell(1, 1).Value = "ID";
+                    worksheet.Cell(1, 2).Value = "Nombre";
+                    worksheet.Cell(1, 3).Value = "Especie";
+
+                    int row = 2;
+                    foreach (var pokemon in pokemonsToExport)
+                    {
+                        worksheet.Cell(row, 1).Value = pokemon.Id;
+                        worksheet.Cell(row, 2).Value = pokemon.Name;
+                        worksheet.Cell(row, 3).Value = string.Join(", ", pokemon.Types?.Select(t => t.Type?.Name ?? string.Empty) ?? Enumerable.Empty<string>());
+                        row++;
+                    }
+
+                    using (var stream = new MemoryStream())
+                    {
+                        workbook.SaveAs(stream);
+                        var content = stream.ToArray();
+                        // Esta línea le dice al navegador que descargue el archivo
+                        return File(content, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Pokemons.xlsx");
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = $"Error al exportar a Excel: {ex.Message}";
+                return RedirectToAction("Index");
             }
         }
 
